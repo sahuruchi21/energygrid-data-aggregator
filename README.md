@@ -41,6 +41,7 @@ MD5(URL + Token + Timestamp)
 
 ## 📁 Project Structure
 
+```
 energygrid-data-aggregator/
 │
 ├── src/
@@ -51,3 +52,108 @@ energygrid-data-aggregator/
 │
 ├── package.json
 └── README.md
+```
+
+---
+
+## 🔐 Authentication System
+
+### Request Headers
+* `Token`
+* `Timestamp`
+* `Signature`
+* `Content-Type: application/json`
+
+### Signature Logic
+* Signature is generated **per request**
+* Timestamp-based signing ensures request freshness
+* Validated server-side by the EnergyGrid API
+
+---
+
+## ⏱️ Rate Limiting Architecture
+
+### Why Custom Rate Limiting?
+* External libraries intentionally avoided
+* Full control over execution timing
+* Deterministic and predictable behavior
+
+### Execution Flow
+Request Queue
+↓
+1 request dequeued every second
+↓
+Signed API request
+↓
+Retry on failure (if applicable)
+
+---
+
+## 🔄 Data Flow (Clear Mental Model)
+
+500 Devices
+↓
+Batching (10 devices / request)
+↓
+Rate-Limited Queue (1 req/sec)
+↓
+Signed API Requests
+↓
+Retry Logic (429 / Network)
+↓
+Unified Aggregated Result
+
+
+---
+
+## ⚙️ How to Run
+
+### 1️⃣ Start the Mock API Server
+```bash
+cd mock-api
+npm install
+npm start
+Expected output:
+Mock API running on http://localhost:3000
+```
+2️⃣ Run the Aggregator Client
+```bash
+cd energygrid-data-aggregator
+npm start
+✅ Expected Output
+Fetching 500 devices...
+
+✔ SN-000 → SN-009
+✔ SN-010 → SN-019
+✔ SN-020 → SN-029
+...
+✔ SN-490 → SN-499
+
+Total devices fetched: 500
+```
+## 🧠 Design Philosophy
+
+Correctness over raw concurrency
+
+Explicit rate control instead of timing hacks
+
+Clear separation of concerns
+
+Minimal dependencies for transparency
+
+Production-style defensive programming
+
+## 🧩 What This Project Demonstrates
+
+Real-world API integration under strict constraints
+
+Rate-limit-aware system design
+
+Secure request signing
+
+Fault-tolerant retry mechanisms
+
+Clean, modular Node.js architecture
+
+## By
+Ruchi Sahu
